@@ -24,6 +24,7 @@
             border: 1px solid #ddd;
             padding: 10px;
             border-radius: 4px;
+            word-wrap: break-word; /* 确保长路径可以换行 */
         }
         a {
             text-decoration: none;
@@ -47,60 +48,85 @@
         const owner = "dynamicDr"; // 替换为你的 GitHub 用户名
         const repo = "dynamicdr.github.io"; // 替换为你的仓库名
 
-        // 构造 API 请求的 URL
-        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/`;
-
         // 获取用于显示文件列表的 ul 元素
         const fileListElement = document.getElementById('file-list');
 
-        // 使用 fetch API 获取仓库内容
-        fetch(apiUrl)
-            .then(response => {
-                // 检查响应是否成功
-                if (!response.ok) {
-                    throw new Error('网络响应错误，请检查仓库名是否正确。');
+        /**
+         * 递归函数，用于获取一个仓库中所有路径下的文件。
+         * @param {string} path - 要获取内容的目录路径。
+         * @returns {Promise<Array>} - 一个包含所有文件对象的 Promise。
+         */
+        async function getFilesRecursively(path) {
+            const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error(`网络响应错误: ${response.statusText} (路径: ${path})`);
+            }
+
+            const contents = await response.json();
+            let fileList = [];
+
+            for (const item of contents) {
+                if (item.type === 'file') {
+                    // 如果是文件，直接添加到列表
+                    fileList.push(item);
+                } else if (item.type === 'dir') {
+                    // 如果是目录，递归调用此函数获取其内容
+                    const filesInDir = await getFilesRecursively(item.path);
+                    // 将子目录中的文件合并到主列表
+                    fileList = fileList.concat(filesInDir);
                 }
-                return response.json();
-            })
-            .then(data => {
+            }
+            return fileList;
+        }
+
+        /**
+         * 主函数，用于启动文件获取和显示过程。
+         */
+        async function displayAllFiles() {
+            try {
+                // 开始递归获取，从根目录 ('') 开始
+                const allFiles = await getFilesRecursively('');
+
                 // 清空 "正在加载..." 的提示
                 fileListElement.innerHTML = '';
 
-                // 遍历从 API 获取到的文件/目录列表
-                data.forEach(item => {
-                    // 不在列表中显示 index.html 文件本身
-                    if (item.name === 'index.html') {
-                        return;
-                    }
+                // 过滤掉 index.html 文件本身
+                const filesToShow = allFiles.filter(file => file.path !== 'index.html');
 
-                    // 创建列表项 li
+                // 如果列表为空（例如，仓库里只有 index.html）
+                if (filesToShow.length === 0) {
+                    fileListElement.innerHTML = '<li>此仓库中没有其他文件。</li>';
+                    return;
+                }
+                
+                // 可选：按文件路径字母顺序排序
+                filesToShow.sort((a, b) => a.path.localeCompare(b.path));
+
+                // 遍历最终的文件列表并显示它们
+                filesToShow.forEach(item => {
                     const listItem = document.createElement('li');
-                    
-                    // 创建链接 a
                     const link = document.createElement('a');
-                    link.href = item.path; // 链接地址就是文件的路径
-                    link.textContent = item.name; // 链接文本是文件名
-
-                    // 如果是目录，在后面添加一个标记
-                    if (item.type === 'dir') {
-                        link.textContent += '/';
-                    }
                     
-                    // 将链接放入列表项，再将列表项放入总列表
+                    // 使用 item.html_url 可以直接链接到 GitHub 上的文件页面
+                    // 使用 item.path 或 item.download_url 作为链接地址均可
+                    link.href = item.path; 
+                    link.textContent = item.path; // 显示文件的完整路径，避免重名文件混淆
+
                     listItem.appendChild(link);
                     fileListElement.appendChild(listItem);
                 });
 
-                // 如果列表为空（例如，仓库里只有 index.html）
-                if (fileListElement.innerHTML === '') {
-                    fileListElement.innerHTML = '<li>此仓库中没有其他文件。</li>';
-                }
-            })
-            .catch(error => {
-                // 如果发生错误，在页面上显示错误信息
+            } catch (error) {
+                // 如果在任何步骤发生错误，在页面上显示错误信息
                 console.error('获取文件列表时出错:', error);
                 fileListElement.innerHTML = `<li>加载文件列表失败: ${error.message}</li>`;
-            });
+            }
+        }
+
+        // 启动主函数
+        displayAllFiles();
     </script>
 
 </body>
