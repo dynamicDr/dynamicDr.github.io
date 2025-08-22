@@ -1,1 +1,87 @@
-"Hello World" 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件导航</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        a {
+            color: #0366d6;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .folder::before {
+            content: "📁 ";
+        }
+        .file::before {
+            content: "📄 ";
+        }
+    </style>
+</head>
+<body>
+    <h1>文件导航</h1>
+    <ul id="file-list">
+        <!-- 文件列表将由JavaScript动态生成 -->
+    </ul>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileList = document.getElementById('file-list');
+            const currentPath = window.location.pathname;
+            
+            // 使用fetch API请求当前目录
+            fetch(currentPath)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const links = doc.querySelectorAll('a');
+                    
+                    // 过滤并处理链接
+                    Array.from(links).forEach(link => {
+                        const href = link.getAttribute('href');
+                        
+                        // 忽略父目录链接和当前页面
+                        if (href && href !== '../' && href !== './' && href !== 'index.html') {
+                            const li = document.createElement('li');
+                            const a = document.createElement('a');
+                            
+                            a.href = href;
+                            a.textContent = href;
+                            
+                            // 根据链接是否以/结尾判断是文件夹还是文件
+                            if (href.endsWith('/')) {
+                                a.className = 'folder';
+                            } else {
+                                a.className = 'file';
+                            }
+                            
+                            li.appendChild(a);
+                            fileList.appendChild(li);
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error('获取文件列表时出错:', error);
+                    fileList.innerHTML = '<li>无法加载文件列表</li>';
+                });
+        });
+    </script>
+</body>
+</html>
