@@ -3,131 +3,347 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文件索引</title>
+    <title>Publications · dynamicDr</title>
     <style>
+        :root {
+            --bg: #f7f8fa;
+            --surface: #ffffff;
+            --text: #1a1d26;
+            --text-secondary: #5c6370;
+            --border: #e8eaef;
+            --accent: #3b5bdb;
+            --accent-soft: #edf2ff;
+            --shadow: 0 1px 3px rgba(16, 24, 40, 0.06), 0 4px 16px rgba(16, 24, 40, 0.04);
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 0 20px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+            min-height: 100vh;
         }
-        h1 {
+
+        .page {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 56px 24px 80px;
+        }
+
+        header {
             text-align: center;
+            margin-bottom: 48px;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
+
+        header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
         }
-        li {
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 4px;
-            word-wrap: break-word; /* 确保长路径可以换行 */
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
         }
-        a {
+
+        .papers {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .paper {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .paper:hover {
+            border-color: #d0d5dd;
+        }
+
+        .paper.open {
+            border-color: #c5d0f5;
+            box-shadow: 0 2px 8px rgba(59, 91, 219, 0.08), 0 8px 24px rgba(16, 24, 40, 0.06);
+        }
+
+        .paper-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 20px 22px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .paper-header:hover .paper-title {
+            color: var(--accent);
+        }
+
+        .chevron {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            margin-top: 3px;
+            color: var(--text-secondary);
+            transition: transform 0.25s ease, color 0.2s;
+        }
+
+        .paper.open .chevron {
+            transform: rotate(90deg);
+            color: var(--accent);
+        }
+
+        .paper-main { flex: 1; min-width: 0; }
+
+        .paper-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .badge {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+
+        .year {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        .paper-title {
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.45;
+            transition: color 0.2s;
+        }
+
+        .paper-actions {
+            flex-shrink: 0;
+            padding-top: 2px;
+        }
+
+        .pdf-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--accent);
             text-decoration: none;
-            color: #0366d6;
-            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #c5d0f5;
+            background: var(--accent-soft);
+            transition: background 0.2s, border-color 0.2s;
+            white-space: nowrap;
         }
-        a:hover {
-            text-decoration: underline;
+
+        .pdf-link:hover {
+            background: #dbe4ff;
+            border-color: #a5b4fc;
+        }
+
+        .paper-body {
+            display: grid;
+            grid-template-rows: 0fr;
+            transition: grid-template-rows 0.3s ease;
+        }
+
+        .paper.open .paper-body {
+            grid-template-rows: 1fr;
+        }
+
+        .paper-body-inner {
+            overflow: hidden;
+        }
+
+        .abstracts {
+            padding: 0 22px 22px 56px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            border-top: 1px solid var(--border);
+            padding-top: 18px;
+            margin: 0 22px 0 0;
+            margin-left: 56px;
+        }
+
+        .abstract-block h4 {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .abstract-block p {
+            font-size: 0.92rem;
+            color: var(--text);
+            text-align: justify;
+        }
+
+        .abstract-block.zh p {
+            color: #2d3340;
+        }
+
+        @media (max-width: 600px) {
+            .page { padding: 36px 16px 60px; }
+            .paper-header { padding: 16px; flex-wrap: wrap; }
+            .paper-actions { width: 100%; padding-left: 34px; }
+            .abstracts {
+                margin-left: 16px;
+                padding-left: 16px;
+                padding-right: 16px;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="page">
+        <header>
+            <h1>Publications</h1>
+            <p>学术论文 · 点击展开查看摘要</p>
+        </header>
 
-    <h1>仓库文件索引</h1>
-    <ul id="file-list">
-        <li>正在加载文件列表...</li>
-    </ul>
+        <div class="papers" id="papers"></div>
+    </div>
 
     <script>
-        // --- 步骤 1: 请在这里修改你的 GitHub 用户名和仓库名 ---
-        const owner = "dynamicDr"; // 替换为你的 GitHub 用户名
-        const repo = "dynamicdr.github.io"; // 替换为你的仓库名
-
-        // 获取用于显示文件列表的 ul 元素
-        const fileListElement = document.getElementById('file-list');
-
-        /**
-         * 递归函数，用于获取一个仓库中所有路径下的文件。
-         * @param {string} path - 要获取内容的目录路径。
-         * @returns {Promise<Array>} - 一个包含所有文件对象的 Promise。
-         */
-        async function getFilesRecursively(path) {
-            const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-            const response = await fetch(url);
-
-            if (!response.ok) {
-                throw new Error(`网络响应错误: ${response.statusText} (路径: ${path})`);
+        const papers = [
+            {
+                shortName: "DEER",
+                venue: "ICASSP",
+                year: 2026,
+                title: "Sample Efficient Experience Replay in Non-stationary Environments",
+                pdf: "DEER_ICASSP_2026/Sample Efficient Experience Replay in Non-stationary Environments.pdf",
+                abstractEn: "In non-stationary environments, off-policy reinforcement learning (RL) agents heavily rely on effective sampling for adaptive planning. However, existing prioritized replay mechanisms assume a stationary environment, neglecting the negative impact of outdated samples. In this paper, we introduce Discrepancy of Environment Dynamics (DoE), which quantifies the value of transitions in non-stationary environments by measuring changes in environmental dynamics. Based on DoE, we propose Discrepancy of Environment Prioritized Experience Replay (DEER), a sample-efficient experience replay method for non-stationary environments. It employs binary classifier-based density estimation to monitor environmental dynamics in real time and adaptively adjust the sampling strategy. DEER prioritizes transitions beneficial to the latest policy, swiftly correcting policy biases caused by environmental changes. Experimental results across four non-stationary Mujoco tasks with two off-policy algorithms demonstrate that DEER significantly improves sample efficiency compared to state-of-the-art methods.",
+                abstractZh: "在非平稳环境中，离策略强化学习（RL）智能体高度依赖有效采样以实现自适应规划。然而，现有优先经验回放机制假设环境平稳，忽视了过时样本的负面影响。本文提出环境动态差异（DoE），通过衡量环境动态变化来量化非平稳环境中转移样本的价值。在此基础上，我们提出环境差异优先经验回放（DEER），一种面向非平稳环境的样本高效经验回放方法。DEER 采用基于二分类器的密度估计实时监测环境动态，并自适应调整采样策略，优先回放对最新策略有益的转移样本，快速纠正环境变化引发的策略偏差。在四个非平稳 Mujoco 任务及两种离策略算法上的实验表明，DEER 相较最先进方法显著提升了样本效率。"
+            },
+            {
+                shortName: "STAR",
+                venue: "IEEE TMC",
+                year: 2026,
+                title: "State-Aware Perturbation Optimization for Robust Deep Reinforcement Learning",
+                pdf: "STAR_TMC_2026/State-Aware Perturbation Optimization for Robust Deep Reinforcement Learning.pdf",
+                abstractEn: "Recently, deep reinforcement learning (DRL) has emerged as a promising approach for robotic control. However, the deployment of DRL in real-world robots is hindered by its sensitivity to environmental perturbations. While existing white-box adversarial attacks rely on local gradient information and apply uniform perturbations across all states to evaluate DRL robustness, they fail to account for temporal dynamics and state-specific vulnerabilities. To combat the above challenge, we first conduct a theoretical analysis of white-box attacks in DRL by establishing the Adversarial Victim Dynamics Markov Decision Process (AVD-MDP), to derive the necessary and sufficient conditions for a successful attack. Based on this, we propose the Selective State-Aware Reinforcement adversarial attack (STAR), to optimize perturbation stealthiness and state visitation dispersion. STAR first employs a soft mask-based state-targeting mechanism to minimize redundant perturbations, enhancing stealthiness and attack effectiveness. Then, it incorporates an information-theoretic optimization objective to maximize mutual information between perturbations, environmental states, and victim actions, ensuring a dispersed state-visitation distribution that steers the victim agent into vulnerable states for maximum return reduction. Extensive experiments demonstrate that STAR outperforms state-of-the-art benchmarks.",
+                abstractZh: "近年来，深度强化学习（DRL）已成为机器人控制的重要范式，但其在真实机器人上的部署受到对环境扰动高度敏感的制约。现有白盒对抗攻击依赖局部梯度信息，对所有状态施加均匀扰动以评估 DRL 鲁棒性，却未能考虑时序动态与状态特异性漏洞。为此，我们首先通过建立对抗受害者动态马尔可夫决策过程（AVD-MDP）对 DRL 中的白盒攻击进行理论分析，推导攻击成功的充要条件。在此基础上，我们提出选择性状态感知强化学习对抗攻击（STAR），以优化扰动隐蔽性与状态访问分散度。STAR 首先采用基于软掩码的状态靶向机制减少冗余扰动，提升隐蔽性与攻击效果；进而引入信息论优化目标，最大化扰动、环境状态与受害者动作之间的互信息，引导受害者智能体进入脆弱状态以实现最大回报下降。大量实验表明，STAR 优于现有最先进基准方法。"
+            },
+            {
+                shortName: "AGMR",
+                venue: "IROS",
+                year: 2025,
+                title: "Robust Deep Reinforcement Learning in Robotics via Adaptive Gradient-Masked Adversarial Attacks",
+                pdf: "AGMR_IROS_2025/Robust Deep Reinforcement Learning in Robotics via Adaptive Gradient-Masked Adversarial Attacks.pdf",
+                abstractEn: "Deep reinforcement learning (DRL) has emerged as a promising approach for robotic control, but its real-world deployment remains challenging due to its vulnerability to environmental perturbations. Existing white-box adversarial attack methods, adapted from supervised learning, fail to effectively target DRL agents as they overlook temporal dynamics and indiscriminately perturb all state dimensions, limiting their impact on long-term rewards. To address these challenges, we propose the Adaptive Gradient-Masked Reinforcement (AGMR) Attack, a white-box attack method that combines DRL with a gradient-based soft masking mechanism to dynamically identify critical state dimensions and optimize adversarial policies. AGMR selectively allocates perturbations to the most impactful state features and incorporates a dynamic adjustment mechanism to balance exploration and exploitation during training. Extensive experiments demonstrate that AGMR outperforms state-of-the-art adversarial attack methods in degrading the performance of the victim agent and enhances the victim agent's robustness through adversarial defense mechanisms.",
+                abstractZh: "深度强化学习（DRL）已成为机器人控制领域的重要方法，但其在真实环境中的部署仍面临对环境扰动高度敏感的问题。现有源自监督学习的白盒对抗攻击方法忽视了时序动态，并对所有状态维度不加区分地施加扰动，限制了对长期回报的攻击效果。为此，我们提出自适应梯度掩码强化学习攻击（AGMR），结合 DRL 与基于梯度的软掩码机制，动态识别关键状态维度并优化对抗策略。AGMR 将扰动集中于最具影响力的状态特征，并通过动态调节机制平衡探索与利用。大量实验表明，AGMR 在降低受害者智能体性能方面优于现有先进对抗攻击方法，并能通过对抗防御机制增强其鲁棒性。"
+            },
+            {
+                shortName: "DAPGD",
+                venue: "ICASSP",
+                year: 2025,
+                title: "Rethinking Adversarial Attacks in Reinforcement Learning from Policy Distribution Perspective",
+                pdf: "DAPGD_ICASSP_2025/Rethinking Adversarial Attacks in Reinforcement Learning from Policy Distribution Perspective.pdf",
+                abstractEn: "Deep Reinforcement Learning (DRL) suffers from uncertainties and inaccuracies in the observation signal in real-world applications. Adversarial attack is an effective method for evaluating the robustness of DRL agents. However, existing attack methods targeting individual sampled actions have limited impacts on the overall policy distribution, particularly in continuous action spaces. To address these limitations, we propose the Distribution-Aware Projected Gradient Descent attack (DAPGD). DAPGD uses distribution similarity as the gradient perturbation input to attack the policy network, which leverages the entire policy distribution rather than relying on individual samples. We utilize the Bhattacharyya distance in DAPGD to measure policy similarity, enabling sensitive detection of subtle but critical differences between probability distributions. Our experiment results demonstrate that DAPGD achieves state-of-the-art results compared to the baselines in three robot navigation tasks, achieving an average 22.03% higher reward drop compared to the best baseline.",
+                abstractZh: "深度强化学习（DRL）在真实应用中易受观测信号不确定性与误差的影响，对抗攻击是评估 DRL 智能体鲁棒性的有效手段。然而，针对单个采样动作的现有攻击方法对整体策略分布影响有限，尤其在连续动作空间中更为明显。为此，我们提出分布感知投影梯度下降攻击（DAPGD），以分布相似性作为梯度扰动输入来攻击策略网络，利用完整策略分布而非依赖单个样本。DAPGD 采用 Bhattacharyya 距离衡量策略相似性，能够敏感地检测概率分布间的细微但关键差异。实验结果表明，在三个机器人导航任务中，DAPGD 相较基线方法取得了最优结果，平均奖励下降幅度比最佳基线高出 22.03%。"
+            },
+            {
+                shortName: "BORT",
+                venue: "ICPADS",
+                year: 2025,
+                title: "Two Heads are Better than One: Robust Learning Meets Multi-branch Models",
+                pdf: "Two_Heads_ICPADS_2025/Two Heads are Better than One - Robust Learning Meets Multi-branch Models.pdf",
+                abstractEn: "Deep neural networks (DNNs) are vulnerable to adversarial examples, in which DNNs are misled to false outputs due to inputs containing imperceptible perturbations. Adversarial training, a reliable and effective method of defense, may significantly reduce the vulnerability of neural networks and becomes the de facto standard for robust learning. While many recent works practice the data-centric philosophy, such as how to generate better adversarial examples or use generative models to produce additional training data, we look back to the models themselves and revisit the adversarial robustness from the perspective of deep feature distribution. In this paper, we propose Branch Orthogonality adveRsarial Training (BORT) to obtain state-of-the-art performance with solely the original dataset for adversarial training. We leverage a simple multi-branch neural network that eclipses adversarial attacks with no increase in inference time, and propose a branch-orthogonal loss to make each solution space orthogonal. Experiments on CIFAR-10, CIFAR-100 and SVHN against ℓ∞ perturbations of size ε = 8/255 show that our method surpasses all state-of-the-art methods without any tricks, achieving 67.3% and 41.5% robust accuracy on CIFAR-10 and CIFAR-100 (improving upon the state-of-the-art by +7.23% and +9.07%).",
+                abstractZh: "深度神经网络（DNN）易受对抗样本攻击，即含不可察觉扰动的输入会误导网络产生错误输出。对抗训练作为可靠有效的防御方法，可显著降低神经网络脆弱性，已成为鲁棒学习的标准范式。近年来大量工作从数据中心视角出发，关注如何生成更优对抗样本或利用生成模型扩充训练数据；本文则从模型本身出发，从深度特征分布视角重新审视对抗鲁棒性。我们提出分支正交对抗训练（BORT），仅使用原始数据集即可在对抗训练中取得最先进性能。我们采用简洁的多分支神经网络，在不增加推理时间的前提下有效抵御对抗攻击，并提出分支正交损失函数使各解空间相互正交。在 CIFAR-10、CIFAR-100 和 SVHN 上针对 ℓ∞ 范数 ε=8/255 扰动的实验表明，本方法无需额外技巧即超越所有最先进方法；在不使用额外训练数据的方法中，CIFAR-10 与 CIFAR-100 鲁棒准确率分别达到 67.3% 与 41.5%（较当时最优提升 +7.23% 与 +9.07%）。"
+            },
+            {
+                shortName: "P-HRL",
+                venue: "ICCC",
+                year: 2024,
+                title: "Prediction-based Hierarchical Reinforcement Learning for Robot Soccer",
+                pdf: "P_HRL_ICCC_2024/Prediction-based Hierarchical Reinforcement Learning for Robot Soccer.pdf",
+                abstractEn: "Robot soccer as a complex mixed cooperative-competitive task presents many challenges to multi-agent reinforcement learning (MARL), such as assigning long-term credits and effective exploration in high-dimensional and continuous state-action spaces. We propose Prediction-based Hierarchical Reinforcement Learning (P-HRL) for robot soccer. P-HRL consists of a coach for soccer tactics and a robot controller for robot motion control. To comprehensively evaluate the performance of P-HRL, we design various key performance indicators for robot soccer such as ball possession rate. Experimental results demonstrate that P-HRL has better performance than the baseline MATD3, with a 52% win rate, 22% draw rate, and 26% loss rate.",
+                abstractZh: "机器人足球作为复杂的混合协作-竞争任务，给多智能体强化学习（MARL）带来诸多挑战，例如长期信用分配以及在高维连续状态-动作空间中的有效探索。我们提出面向机器人足球的基于预测的分层强化学习（P-HRL），包含负责战术的教练模块与负责运动控制的机器人控制器。为全面评估 P-HRL 性能，我们设计了控球率等多项关键性能指标。实验结果表明，P-HRL 优于基线 MATD3，胜率达 52%、平局 22%、负率 26%。"
             }
+        ];
 
-            const contents = await response.json();
-            let fileList = [];
+        const container = document.getElementById("papers");
 
-            for (const item of contents) {
-                if (item.type === 'file') {
-                    // 如果是文件，直接添加到列表
-                    fileList.push(item);
-                } else if (item.type === 'dir') {
-                    // 如果是目录，递归调用此函数获取其内容
-                    const filesInDir = await getFilesRecursively(item.path);
-                    // 将子目录中的文件合并到主列表
-                    fileList = fileList.concat(filesInDir);
+        papers.forEach((paper, index) => {
+            const article = document.createElement("article");
+            article.className = "paper";
+            article.innerHTML = `
+                <div class="paper-header" role="button" tabindex="0" aria-expanded="false" aria-controls="body-${index}">
+                    <svg class="chevron" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd"/>
+                    </svg>
+                    <div class="paper-main">
+                        <div class="paper-meta">
+                            <span class="badge">${paper.shortName} · ${paper.venue}</span>
+                            <span class="year">${paper.year}</span>
+                        </div>
+                        <h2 class="paper-title">${paper.title}</h2>
+                    </div>
+                    <div class="paper-actions">
+                        <a class="pdf-link" href="${encodeURI(paper.pdf)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+                            <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z"/>
+                                <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z"/>
+                            </svg>
+                            PDF
+                        </a>
+                    </div>
+                </div>
+                <div class="paper-body" id="body-${index}">
+                    <div class="paper-body-inner">
+                        <div class="abstracts">
+                            <div class="abstract-block">
+                                <h4>Abstract</h4>
+                                <p>${paper.abstractEn}</p>
+                            </div>
+                            <div class="abstract-block zh">
+                                <h4>摘要</h4>
+                                <p>${paper.abstractZh}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const header = article.querySelector(".paper-header");
+
+            const toggle = () => {
+                const isOpen = article.classList.toggle("open");
+                header.setAttribute("aria-expanded", isOpen);
+            };
+
+            header.addEventListener("click", toggle);
+            header.addEventListener("keydown", (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    toggle();
                 }
-            }
-            return fileList;
-        }
+            });
 
-        /**
-         * 主函数，用于启动文件获取和显示过程。
-         */
-        async function displayAllFiles() {
-            try {
-                // 开始递归获取，从根目录 ('') 开始
-                const allFiles = await getFilesRecursively('');
-
-                // 清空 "正在加载..." 的提示
-                fileListElement.innerHTML = '';
-
-                // 过滤掉 index.html 文件本身
-                const filesToShow = allFiles.filter(file => file.path !== 'index.html');
-
-                // 如果列表为空（例如，仓库里只有 index.html）
-                if (filesToShow.length === 0) {
-                    fileListElement.innerHTML = '<li>此仓库中没有其他文件。</li>';
-                    return;
-                }
-                
-                // 可选：按文件路径字母顺序排序
-                filesToShow.sort((a, b) => a.path.localeCompare(b.path));
-
-                // 遍历最终的文件列表并显示它们
-                filesToShow.forEach(item => {
-                    const listItem = document.createElement('li');
-                    const link = document.createElement('a');
-                    
-                    // 使用 item.html_url 可以直接链接到 GitHub 上的文件页面
-                    // 使用 item.path 或 item.download_url 作为链接地址均可
-                    link.href = item.path; 
-                    link.textContent = item.path; // 显示文件的完整路径，避免重名文件混淆
-
-                    listItem.appendChild(link);
-                    fileListElement.appendChild(listItem);
-                });
-
-            } catch (error) {
-                // 如果在任何步骤发生错误，在页面上显示错误信息
-                console.error('获取文件列表时出错:', error);
-                fileListElement.innerHTML = `<li>加载文件列表失败: ${error.message}</li>`;
-            }
-        }
-
-        // 启动主函数
-        displayAllFiles();
+            container.appendChild(article);
+        });
     </script>
-
 </body>
 </html>
