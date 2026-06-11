@@ -247,6 +247,16 @@
                 abstractZh: "在非平稳环境中，离策略强化学习（RL）智能体高度依赖有效采样以实现自适应规划。然而，现有优先经验回放机制假设环境平稳，忽视了过时样本的负面影响。本文提出环境动态差异（DoE），通过衡量环境动态变化来量化非平稳环境中转移样本的价值。在此基础上，我们提出环境差异优先经验回放（DEER），一种面向非平稳环境的样本高效经验回放方法。DEER 采用基于二分类器的密度估计实时监测环境动态，并自适应调整采样策略，优先回放对最新策略有益的转移样本，快速纠正环境变化引发的策略偏差。在四个非平稳 Mujoco 任务及两种离策略算法上的实验表明，DEER 相较最先进方法显著提升了样本效率。"
             },
             {
+                shortName: "RELED",
+                venue: "IEEE TMC",
+                year: 2026,
+                titleEn: "LLM-Driven Stationarity-Aware Expert Demonstrations for Multi-Agent Reinforcement Learning in Mobile Systems",
+                titleZh: "大语言模型驱动的平稳性感知专家示范用于移动系统中的多智能体强化学习",
+                pdf: "RELED_TMC_2026/LLM-Driven Stationarity-Aware Expert Demonstrations for Multi-Agent Reinforcement Learning in Mobile Systems.pdf",
+                abstractEn: "Multi-agent reinforcement learning (MARL) has been increasingly adopted in many real-world applications. While MARL enables decentralized deployment on resource-constrained edge devices, it suffers from severe non-stationarity due to the synchronous updates of agent policies. This non-stationarity results in unstable training and poor policy convergence, especially as the number of agents increases. In this paper, we propose Refinement-Enhanced LLM Expert Demonstrations (RELED), a scalable MARL framework that integrates large language model (LLM)-driven expert demonstrations with autonomous agent exploration. RELED incorporates a Stationarity-Aware Expert Demonstration module, which leverages theoretical non-stationarity bounds to enhance the quality of LLM-generated expert trajectories, thus providing high-reward and training-stable samples for each agent. Moreover, a Hybrid Expert-Agent Policy Optimization module adaptively balances each agent's learning from both expert-generated and agent-generated trajectories, accelerating policy convergence and improving generalization. Extensive experiments with real city networks based on OpenStreetMap demonstrate that RELED achieves superior performance compared to state-of-the-art MARL methods.",
+                abstractZh: "多智能体强化学习（MARL）已在众多真实场景中得到广泛应用。MARL 虽支持在资源受限的边缘设备上分布式部署，但因智能体策略同步更新而面临严重的非平稳性问题，导致训练不稳定、策略难以收敛，且随智能体数量增加愈发明显。本文提出精炼增强大语言模型专家示范（RELED），一种将大语言模型（LLM）驱动的专家示范与智能体自主探索相结合的可扩展 MARL 框架。RELED 包含平稳性感知专家示范模块，利用理论非平稳性上界提升 LLM 生成专家轨迹的质量，为各智能体提供高回报且训练稳定的样本；并引入混合专家-智能体策略优化模块，自适应平衡专家轨迹与智能体轨迹的学习，加速策略收敛并提升泛化能力。基于 OpenStreetMap 真实城市路网的实验表明，RELED 相较最先进 MARL 方法取得了更优性能。"
+            },
+            {
                 shortName: "STAR",
                 venue: "IEEE TMC",
                 year: 2026,
